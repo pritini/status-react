@@ -65,7 +65,7 @@ void handleSignal(char *signal)
     }
 
 #if DEBUG
-    NSLog(@"[handleSignal] Received an event from Status-Go: %@", signal);
+    NSLog(@"[handleSignal] Received an event from Status-Go: %", signal);
 #endif
     [bridge.eventDispatcher sendAppEventWithName:@"gethEvent"
                                             body:@{@"jsonEvent": toObjCStr(signal)}];
@@ -133,7 +133,7 @@ RCT_EXPORT_METHOD(initKeystore) {
                    ^(void)
                    {
                         char *res = initKeystore(fromObjCStr(keystoreDir.path));
-                        NSLog(@"InitKeyStore result %@", res);
+                        NSLog(@"InitKeyStore result %", res);
                    });
 }
 
