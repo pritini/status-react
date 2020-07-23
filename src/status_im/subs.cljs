@@ -437,12 +437,6 @@
    public-key))
 
 (re-frame/reg-sub
- :multiaccount/notifications-enabled?
- :<- [:multiaccount]
- (fn [{:keys [notifications-enabled?]}]
-   notifications-enabled?))
-
-(re-frame/reg-sub
  :multiaccount/preferred-name
  :<- [:multiaccount]
  (fn [{:keys [preferred-name]}]
