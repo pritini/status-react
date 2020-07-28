@@ -41,6 +41,8 @@
 (def qr-test-menu-enabled? (enabled? (get-config :QR_READ_TEST_MENU "0")))
 (def referrals-invite-enabled? (enabled? (get-config :ENABLE_REFERRAL_INVITE "0")))
 
+(def disable-wallet-on-mobile-network?
+  (enabled? (get-config :DISABLE_WALLET_ON_MOBILE_NETWORK)))
 ;; CONFIG VALUES
 (def log-level
   (string/upper-case (get-config :LOG_LEVEL "")))
