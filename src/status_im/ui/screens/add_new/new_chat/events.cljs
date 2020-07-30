@@ -14,6 +14,7 @@
             [status-im.chat.models :as chat]
             [status-im.i18n :as i18n]
             [status-im.contact.core :as contact]
+            [status-im.router.core :as router]
             [status-im.navigation :as navigation]))
 
 (defn- ens-name-parse [contact-identity]
@@ -79,30 +80,29 @@
     :yourself
     (i18n/label :t/can-not-add-yourself)))
 
-(fx/defn qr-code-scanned
-  {:events [:contact/qr-code-scanned]}
-  [{:keys [db] :as cofx} contact-identity {:keys [new-contact?] :as opts}]
-  (let [public-key?       (and (string? contact-identity)
-                               (string/starts-with? contact-identity "0x"))
-        validation-result (db/validate-pub-key db contact-identity)]
-    (cond
-      (and public-key? (not (some? validation-result)))
+(fx/defn qr-code-handled
+  {:events [::qr-code-handled]}
+  [{:keys [db] :as cofx} {:keys [type public-key chat-id data]} {:keys [new-contact?] :as opts}]
+  (let [public-key?       (and (string? data)
+                               (string/starts-with? data "0x"))
+        chat-key          (cond
+                            (= type :private-chat) chat-id
+                            (= type :contact)      public-key
+                            (and (= type :undefined)
+                                 public-key?)      data) 
+        validation-result (db/validate-pub-key db chat-key)]
+    (if-not validation-result
       (if new-contact?
         (fx/merge cofx
-                  (contact/add-contact contact-identity)
+                  (contact/add-contact chat-key)
                   (navigation/navigate-to-cofx :contacts-list {}))
-        (chat/start-chat cofx contact-identity))
-
-      (and (string? contact-identity) (ul/match-url contact-identity ul/profile-regex))
-      (qr-code-scanned cofx (ul/match-url contact-identity ul/profile-regex) opts)
-
-      (and (not public-key?) (string? contact-identity))
-      (let [chain (ethereum/chain-keyword db)]
-        {:resolve-public-key {:chain            chain
-                              :contact-identity contact-identity
-                              :cb               #(re-frame/dispatch [:contact/qr-code-scanned % opts])}})
-
-      :else
+        (chat/start-chat cofx chat-key {:navigation-reset? true}))
       {:utils/show-popup {:title      (i18n/label :t/unable-to-read-this-code)
                           :content    (get-validation-label validation-result)
                           :on-dismiss #(re-frame/dispatch [:navigate-to :home])}})))
+
+(fx/defn qr-code-scanned
+  {:events [:contact/qr-code-scanned]}
+  [{:keys [db] :as cofx} data opts]
+  {::router/handle-uri {:uri data
+                        :cb #(re-frame/dispatch [::qr-code-handled % opts])}})
