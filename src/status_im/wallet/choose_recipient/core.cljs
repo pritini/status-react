@@ -113,37 +113,26 @@
   {:db (assoc-in db [:wallet/prepare-transaction :modal-opened?] false)})
 
 (fx/defn parse-eip681-uri-and-resolve-ens
-  [{db :db :as cofx} uri]
-  (if-let [message (eip681/parse-uri uri)]
+  [{db :db :as cofx} {:keys [message uri paths ens-names error]}]
+  (if-not error
     ;; first we get a vector of ens-names to resolve and a vector of paths of
     ;; these names
-    (let [{:keys [paths ens-names]}
-          (reduce (fn [acc path]
-                    (let [address (get-in message path)]
-                      (if (ens/is-valid-eth-name? address)
-                        (-> acc
-                            (update :paths conj path)
-                            (update :ens-names conj address))
-                        acc)))
-                  {:paths [] :ens-names []}
-                  [[:address] [:function-arguments :address]])]
-      (println "message" message)
-      (if (empty? ens-names)
-        ;; if there are no ens-names, we dispatch request-uri-parsed immediately
-        (request-uri-parsed cofx message uri)
-        {::resolve-addresses
-         {:registry (get ens/ens-registries (ethereum/chain-keyword db))
-          :ens-names ens-names
-          :callback
-          (fn [addresses]
-            (re-frame/dispatch
-             [:wallet/request-uri-parsed
-              ;; we replace ens-names at their path in the message by their
-              ;; actual address
-              (reduce (fn [message [path address]]
-                        (assoc-in message path address))
-                      message
-                      (map vector paths addresses)) uri]))}}))
+    (if (empty? ens-names)
+      ;; if there are no ens-names, we dispatch request-uri-parsed immediately
+      (request-uri-parsed cofx message uri)
+      {::resolve-addresses
+       {:registry (get ens/ens-registries (ethereum/chain-keyword db))
+        :ens-names ens-names
+        :callback
+        (fn [addresses]
+          (re-frame/dispatch
+           [:wallet/request-uri-parsed
+            ;; we replace ens-names at their path in the message by their
+            ;; actual address
+            (reduce (fn [message [path address]]
+                      (assoc-in message path address))
+                    message
+                    (map vector paths addresses)) uri]))}})
     {:ui/show-error (i18n/label :t/wallet-invalid-address {:data uri})}))
 
 (fx/defn qr-scanner-result

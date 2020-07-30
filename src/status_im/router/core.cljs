@@ -1,7 +1,6 @@
 (ns status-im.router.core
   (:require [re-frame.core :as re-frame]
             [clojure.string :as string]
-            [status-im.i18n :as i18n]
             [bidi.bidi :as bidi]
             [status-im.ui.screens.add-new.new-public-chat.db :as public-chat.db]
             [status-im.utils.security :as security]
@@ -10,8 +9,7 @@
             [status-im.ethereum.core :as ethereum]
             [status-im.ethereum.resolver :as resolver]
             [status-im.ethereum.stateofus :as stateofus]
-            [cljs.spec.alpha :as spec]
-            [status-im.utils.fx :as fx]))
+            [cljs.spec.alpha :as spec]))
 
 (def ethereum-scheme "ethereum:")
 
@@ -25,13 +23,14 @@
 
 (def handled-schemes (set (into uri-schemes web-urls)))
 
-(def routes ["" {handled-schemes {["" :chat-id]       :public-chat
-                                  "chat"              {["/public/" :chat-id] :public-chat}
-                                  ["b/" :domain]      :browse
-                                  ["browse/" :domain] :browse
-                                  ["p/" :chat-id]     :private-chat
-                                  ["u/" :user-id]     :user
-                                  ["user/" :user-id]  :user}
+(def routes ["" {handled-schemes {["" :chat-id]           :public-chat
+                                  "chat"                  {["/public/" :chat-id] :public-chat}
+                                  ["b/" :domain]          :browse
+                                  ["browse/" :domain]     :browse
+                                  ["p/" :chat-id]         :private-chat
+                                  ["u/" :user-id]         :user
+                                  ["user/" :user-id]      :user
+                                  ["referral/" :referrer] :referrals}
                  ethereum-scheme {["" :path] :ethereum}}])
 
 (defn match-uri [uri]
@@ -115,11 +114,17 @@
              :message message
              :uri     uri})
         (cb {:type      :eip681
+             :uri       uri
              :message   message
              :paths     paths
              :ens-names ens-names})))
     (cb {:type  :eip681
+         :uri   uri
          :error :cannot-parse})))
+
+(defn match-referral [{:keys [referrer]} cb]
+  (cb {:type     :referrals
+       :referrer referrer}))
 
 (defn handle-uri [uri cb]
   (let [{:keys [handler route-params]} (match-uri uri)]
@@ -129,6 +134,7 @@
       :browse       (match-browser route-params cb)
       :user         (match-contact route-params cb)
       :ethereum     (match-eip681 uri cb)
+      :referrals    (match-referral uri cb)
       (cb {:type :undefined
            :data uri}))))
 
