@@ -10,7 +10,6 @@
             [status-im.ui.components.colors :as colors]
             [status-im.utils.config :as config]
             [quo.core :as quo]
-            [reagent.core :as reagent]
             [quo.components.safe-area :as safe-area]))
 
 (defn- topbar [_ {:keys [title] :as opts}]
