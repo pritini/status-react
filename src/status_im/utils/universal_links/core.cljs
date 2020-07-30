@@ -1,12 +1,10 @@
 (ns status-im.utils.universal-links.core
-  (:require [clojure.string :as string]
-            [goog.string :as gstring]
+  (:require [goog.string :as gstring]
             [re-frame.core :as re-frame]
             [status-im.multiaccounts.model :as multiaccounts.model]
             [status-im.chat.models :as chat]
             [status-im.constants :as constants]
             [status-im.router.core :as router]
-            [status-im.utils.security :as security]
             [status-im.ui.components.react :as react]
             [status-im.ui.screens.add-new.new-chat.db :as new-chat.db]
             [status-im.navigation :as navigation]

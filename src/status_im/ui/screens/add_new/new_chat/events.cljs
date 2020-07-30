@@ -2,7 +2,6 @@
   (:require [clojure.string :as string]
             [re-frame.core :as re-frame]
             [status-im.ethereum.core :as ethereum]
-            [status-im.utils.universal-links.core :as ul]
             [status-im.ethereum.ens :as ens]
             [status-im.ethereum.resolver :as resolver]
             [status-im.ui.screens.add-new.new-chat.db :as db]
@@ -89,7 +88,7 @@
                             (= type :private-chat) chat-id
                             (= type :contact)      public-key
                             (and (= type :undefined)
-                                 public-key?)      data) 
+                                 public-key?)      data)
         validation-result (db/validate-pub-key db chat-key)]
     (if-not validation-result
       (if new-contact?

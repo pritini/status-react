@@ -17,9 +17,9 @@
     :on-allowed  #(re-frame/dispatch [:navigate-to :qr-scanner opts])
     :on-denied   (fn []
                    (utils/set-timeout
-                     #(utils/show-popup (i18n/label :t/error)
-                                        (i18n/label :t/camera-access-error))
-                     50))}})
+                    #(utils/show-popup (i18n/label :t/error)
+                                       (i18n/label :t/camera-access-error))
+                    50))}})
 
 (fx/defn set-qr-code
   {:events [:qr-scanner.callback/scan-qr-code-success]}
@@ -34,7 +34,6 @@
             (navigation/navigate-back)
             (when-let [handler (:cancel-handler opts)]
               (fn [] {:dispatch [handler opts]}))))
-
 
 (fx/defn handle-browse [cofx {:keys [domain]}]
   (fx/merge cofx

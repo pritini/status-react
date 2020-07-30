@@ -87,7 +87,6 @@
       (cb {:type  :private-chat
            :error :invalid-chat-id}))))
 
-
 (defn match-browser [{:keys [domain]} cb]
   (if (security/safe-link? domain)
     (cb {:type :browser
