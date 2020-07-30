@@ -64,7 +64,7 @@
 (fx/defn handle-disable-notifications-event
   {:events [::unregistered-from-push-notifications]}
   [cofx]
-  {::json-rpc/call [{:method     (json-rpc/call-ext-method (waku/enabled? cofx) "unregisterForPushNotifications")
+  {::json-rpc/call [{:method     (json-rpc/call-ext-method (waku/enabled? cofx) "unregisterFromPushNotifications")
                      :params     []
                      :on-success #(log/info "[push-notifications] unregister-success" %)
                      :on-error   #(re-frame/dispatch [::switch-error false %])}]})
