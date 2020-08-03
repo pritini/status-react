@@ -5,7 +5,7 @@
             [status-im.router.core :as router]
             [status-im.navigation :as navigation]
             [status-im.utils.utils :as utils]
-            [status-im.wallet.choose-recipient.core :as choose-recipient]
+            [status-im.ethereum.core :as ethereum]
             [status-im.ui.screens.add-new.new-chat.db :as new-chat.db]
             [status-im.utils.fx :as fx]))
 
@@ -35,13 +35,16 @@
             (when-let [handler (:cancel-handler opts)]
               (fn [] {:dispatch [handler opts]}))))
 
-(fx/defn handle-browse [cofx {:keys [domain]}]
+(fx/defn handle-browse [cofx {:keys [url]}]
   (fx/merge cofx
-            {:browser/show-browser-selection domain}
+            {:browser/show-browser-selection url}
             (navigation/navigate-back)))
 
-(fx/defn handle-private-chat [cofx {:keys [chat-id]}]
-  (chat/start-chat cofx chat-id {}))
+(fx/defn handle-private-chat [{:keys [db] :as cofx} {:keys [chat-id]}]
+  (if-not (new-chat.db/own-public-key? db chat-id)
+    (chat/start-chat cofx chat-id)
+    {:utils/show-popup {:title   (i18n/label :t/unable-to-read-this-code)
+                        :content (i18n/label :t/can-not-add-yourself)}}))
 
 (fx/defn handle-public-chat [cofx {:keys [topic]}]
   (chat/start-public-chat cofx topic {}))
@@ -50,14 +53,17 @@
   [{:keys [db] :as cofx} {:keys [public-key]}]
   (cond
     (and public-key (new-chat.db/own-public-key? db public-key))
-    (navigation/navigate-to-cofx cofx :tabs {:screen :my-profile})
+    (navigation/navigate-to-cofx cofx :tabs {:screen :profile-stack})
 
     public-key
-    (navigation/navigate-to-cofx (assoc-in cofx [:db :contacts/identity] public-key) :tabs {:screen :profile})))
+    (navigation/navigate-to-cofx (assoc-in cofx [:db :contacts/identity] public-key)
+                                 :tabs
+                                 {:screen :profile-stack
+                                  :params {:screen :profile}})))
 
 (fx/defn handle-eip681 [cofx data]
   (fx/merge cofx
-            (choose-recipient/parse-eip681-uri-and-resolve-ens data)
+            {:dispatch [:wallet/parse-eip681-uri-and-resolve-ens data]}
             (navigation/navigate-to-cofx :tabs {:screen :wallet} nil)))
 
 (fx/defn match-scan
@@ -70,11 +76,11 @@
     :browser      (handle-browse cofx data)
     :eip681       (handle-eip681 cofx data)
     {:utils/show-popup {:title      (i18n/label :t/unable-to-read-this-code)
-                        :content    "Cannot handle this code"
                         :on-dismiss #(re-frame/dispatch [:navigate-to :home])}}))
 
 (fx/defn on-scan
   {:events [::on-scan-success]}
-  [_ uri]
-  {::router/handle-uri {:uri uri
-                        :cb #(re-frame/dispatch [::match-scanned-value %])}})
+  [{:keys [db]} uri]
+  {::router/handle-uri {:chain (ethereum/chain-keyword db)
+                        :uri   uri
+                        :cb    #(re-frame/dispatch [::match-scanned-value %])}})

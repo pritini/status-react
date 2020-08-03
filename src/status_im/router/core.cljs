@@ -6,7 +6,6 @@
             [status-im.utils.security :as security]
             [status-im.ethereum.eip681 :as eip681]
             [status-im.ethereum.ens :as ens]
-            [status-im.ethereum.core :as ethereum]
             [status-im.ethereum.resolver :as resolver]
             [status-im.ethereum.stateofus :as stateofus]
             [cljs.spec.alpha :as spec]))
@@ -50,7 +49,7 @@
     (resolver/pubkey registry ens-name cb)))
 
 (defn match-contact
-  [{:keys [user-id]} callback]
+  [chain {:keys [user-id]} callback]
   (let [public-key? (and (string? user-id)
                          (string/starts-with? user-id "0x"))
         valid-key   (and (spec/valid? :global/public-key user-id)
@@ -61,10 +60,9 @@
                  :public-key user-id})
 
       (and (not public-key?) (string? user-id))
-      (let [chain      (ethereum/chain-keyword {:db nil}) ;FIXME:
-            registry   (get ens/ens-registries chain)
+      (let [registry   (get ens/ens-registries chain)
             ens-name   (ens-name-parse user-id)
-            on-success #(match-contact {:user-id %} callback)]
+            on-success #(match-contact chain {:user-id %} callback)]
         (resolver/pubkey registry ens-name on-success))
 
       :else
@@ -78,14 +76,14 @@
     (cb {:type  :public-chat
          :error :invalid-topic})))
 
-(defn match-private-chat [{:keys [chat-id]} cb]
-  (let [valid (or (spec/valid? :global/public-key chat-id)
-                  (not= chat-id ens/default-key))]
-    (if valid
-      (cb {:type    :private-chat
-           :chat-id chat-id})
-      (cb {:type  :private-chat
-           :error :invalid-chat-id}))))
+(defn match-private-chat [chain {:keys [chat-id]} cb]
+  (match-contact chain {:user-id chat-id}
+                 (fn [{:keys [public-key]}]
+                   (if public-key
+                     (cb {:type    :private-chat
+                          :chat-id public-key})
+                     (cb {:type  :private-chat
+                          :error :invalid-chat-id})))))
 
 (defn match-browser [{:keys [domain]} cb]
   (if (security/safe-link? domain)
@@ -125,19 +123,35 @@
   (cb {:type     :referrals
        :referrer referrer}))
 
-(defn handle-uri [uri cb]
+(defn handle-uri [chain uri cb]
   (let [{:keys [handler route-params]} (match-uri uri)]
-    (case handler
-      :public-chat  (match-public-chat route-params cb)
-      :private-chat (match-private-chat route-params cb)
-      :browse       (match-browser route-params cb)
-      :user         (match-contact route-params cb)
-      :ethereum     (match-eip681 uri cb)
-      :referrals    (match-referral uri cb)
+    (cond
+      (= handler :public-chat)
+      (match-public-chat route-params cb)
+
+      (= handler :private-chat)
+      (match-private-chat chain route-params cb)
+
+      (= handler :browse)
+      (match-browser route-params cb)
+
+      (= handler :user)
+      (match-contact chain route-params cb)
+
+      (= handler :ethereum)
+      (match-eip681 uri cb)
+
+      (spec/valid? :global/public-key uri)
+      (match-contact chain {:user-id uri} cb)
+
+      (= handler :referrals)
+      (match-referral route-params cb)
+
+      :else
       (cb {:type :undefined
            :data uri}))))
 
 (re-frame/reg-fx
  ::handle-uri
- (fn [{:keys [uri cb]}]
-   (handle-uri uri cb)))
+ (fn [{:keys [chain uri cb]}]
+   (handle-uri chain uri cb)))

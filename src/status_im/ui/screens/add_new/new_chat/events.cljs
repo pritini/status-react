@@ -95,13 +95,14 @@
         (fx/merge cofx
                   (contact/add-contact chat-key)
                   (navigation/navigate-to-cofx :contacts-list {}))
-        (chat/start-chat cofx chat-key {:navigation-reset? true}))
+        (chat/start-chat cofx chat-key))
       {:utils/show-popup {:title      (i18n/label :t/unable-to-read-this-code)
                           :content    (get-validation-label validation-result)
                           :on-dismiss #(re-frame/dispatch [:navigate-to :home])}})))
 
 (fx/defn qr-code-scanned
   {:events [:contact/qr-code-scanned]}
-  [{:keys [db] :as cofx} data opts]
-  {::router/handle-uri {:uri data
-                        :cb #(re-frame/dispatch [::qr-code-handled % opts])}})
+  [{:keys [db]} data opts]
+  {::router/handle-uri {:chain (ethereum/chain-keyword db)
+                        :uri   data
+                        :cb    #(re-frame/dispatch [::qr-code-handled % opts])}})

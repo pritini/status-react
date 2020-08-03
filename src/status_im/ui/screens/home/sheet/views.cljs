@@ -20,13 +20,12 @@
                         :align-items     :center}}
     [quo/text {:size   :large
                :weight :bold}
-     (i18n/label :t/open)]
+     (i18n/label :t/open-home)]
     [quo/button {:type     :icon
                  :theme    :icon
                  :on-press #(hide-sheet-and-dispatch
                              [::qr-scanner/scan-code
-                              {:title   "QR SCANNER"
-                               :handler ::qr-scanner/on-scan-success}])}
+                              {:handler ::qr-scanner/on-scan-success}])}
      :main-icons/qr]]
    [quo/list-item
     {:theme               :accent

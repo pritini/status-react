@@ -5,6 +5,8 @@
             [status-im.chat.models :as chat]
             [status-im.constants :as constants]
             [status-im.router.core :as router]
+            [status-im.i18n :as i18n]
+            [status-im.ethereum.core :as ethereum]
             [status-im.ui.components.react :as react]
             [status-im.ui.screens.add-new.new-chat.db :as new-chat.db]
             [status-im.navigation :as navigation]
@@ -38,13 +40,16 @@
   (boolean
    (re-matches constants/regx-deep-link url)))
 
-(fx/defn handle-browse [cofx {:keys [domain]}]
-  (log/info "universal-links: handling browse" domain)
-  {:browser/show-browser-selection domain})
+(fx/defn handle-browse [cofx {:keys [url]}]
+  (log/info "universal-links: handling browse" url)
+  {:browser/show-browser-selection url})
 
-(fx/defn handle-private-chat [cofx {:keys [chat-id]}]
+(fx/defn handle-private-chat [{:keys [db] :as cofx} {:keys [chat-id]}]
   (log/info "universal-links: handling private chat" chat-id)
-  (chat/start-chat cofx chat-id))
+  (if-not (new-chat.db/own-public-key? db chat-id)
+    (chat/start-chat cofx chat-id)
+    {:utils/show-popup {:title   (i18n/label :t/unable-to-read-this-code)
+                        :content (i18n/label :t/can-not-add-yourself)}}))
 
 (fx/defn handle-public-chat [cofx {:keys [topic]}]
   (log/info "universal-links: handling public chat" topic)
@@ -55,17 +60,20 @@
   (log/info "universal-links: handling view profile" public-key)
   (cond
     (and public-key (new-chat.db/own-public-key? db public-key))
-    (navigation/navigate-to-cofx cofx :my-profile nil)
+    (navigation/navigate-to-cofx cofx :tabs {:screen :profile-stack})
 
     public-key
-    (navigation/navigate-to-cofx (assoc-in cofx [:db :contacts/identity] public-key) :profile nil)))
+    (navigation/navigate-to-cofx (assoc-in cofx [:db :contacts/identity] public-key)
+                                 :tabs
+                                 {:screen :profile-stack
+                                  :params {:screen :profile}})))
 
 (fx/defn handle-eip681 [cofx data]
   (fx/merge cofx
             (choose-recipient/parse-eip681-uri-and-resolve-ens data)
             (navigation/navigate-to-cofx :wallet nil)))
 
-(fx/defn handle-referrer-url [_ {:keus [referrer]}]
+(fx/defn handle-referrer-url [_ {:keys [referrer]}]
   ;; TODO: Use only for testing
   {::acquisition/check-referrer referrer})
 
@@ -88,14 +96,15 @@
     :contact      (handle-view-profile cofx data)
     :browser      (handle-browse cofx data)
     :eip681       (handle-eip681 cofx data)
-    :referrals    (hanle-referrer-url cofx data)
+    :referrals    (handle-referrer-url cofx data)
     (handle-not-found url)))
 
 (fx/defn route-url
   "Match a url against a list of routes and handle accordingly"
-  [cofx url]
-  {::router/handle-uri {:uri url
-                        :cb #(re-frame/dispatch [::match-value url %])}})
+  [{:keys [db]} url]
+  {::router/handle-uri {:chain (ethereum/chain-keyword db)
+                        :uri   url
+                        :cb    #(re-frame/dispatch [::match-value url %])}})
 
 (fx/defn store-url-for-later
   "Store the url in the db to be processed on login"

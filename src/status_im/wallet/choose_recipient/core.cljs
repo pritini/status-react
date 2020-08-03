@@ -8,10 +8,13 @@
             [status-im.i18n :as i18n]
             [status-im.utils.money :as money]
             [status-im.utils.fx :as fx]
+            [status-im.qr-scanner.core :as qr-scaner]
+            [status-im.ui.components.bottom-sheet.core :as bottom-sheet]
             [status-im.navigation :as navigation]
             [clojure.string :as string]
             [status-im.ethereum.stateofus :as stateofus]))
 
+;; FIXME(Ferossgp): Should be part of QR scanner not wallet
 (fx/defn toggle-flashlight
   {:events [:wallet/toggle-flashlight]}
   [{:keys [db]}]
@@ -107,12 +110,22 @@
                                                {:data uri :chain current-chain-id})}))))
       {:ui/show-error (i18n/label :t/wallet-invalid-address {:data uri})})))
 
+(fx/defn qr-scanner-allowed
+  {:events [:wallet.send/qr-scanner]}
+  [{:keys [db] :as cofx} options]
+  (fx/merge cofx
+            (when (:modal-opened? options)
+              {:db (assoc-in db [:wallet/prepare-transaction :modal-opened?] true)})
+            (bottom-sheet/hide-bottom-sheet)
+            (qr-scaner/scan-qr-code options)))
+
 (fx/defn qr-scanner-cancel
   {:events [:wallet.send/qr-scanner-cancel]}
   [{db :db} _]
   {:db (assoc-in db [:wallet/prepare-transaction :modal-opened?] false)})
 
 (fx/defn parse-eip681-uri-and-resolve-ens
+  {:events [:wallet/parse-eip681-uri-and-resolve-ens]}
   [{db :db :as cofx} {:keys [message uri paths ens-names error]}]
   (if-not error
     ;; first we get a vector of ens-names to resolve and a vector of paths of
