@@ -93,16 +93,13 @@
                     :description :t/invite-instruction-fourth}])
 
 (defn- referral-steps []
-  [rn/view {:style (merge
-                    (:tiny spacing/padding-vertical)
-                    (:base spacing/padding-horizontal)
-                    {:border-bottom-width 1
-                     :border-bottom-color (:ui-01 @colors/theme)})}
-   [rn/view {:style {:padding-top    (:small spacing/spacing)
-                     :padding-bottom (:x-tiny spacing/spacing)}}
+  [rn/view {:style (styles/invite-instructions)}
+   [rn/view {:style (styles/invite-instructions-title)}
     [quo/text {:color :secondary}
      (i18n/label :t/invite-instruction)]]
-   [rn/view {:flex 1}
+   [rn/view {:style (styles/invite-warning)}
+    [quo/text (i18n/label :t/invite-warning)]]
+   [rn/view {:style (styles/invite-instructions-content)}
     (for [s steps-values]
       ^{:key (str (:number s))}
       [step s])]])
@@ -221,53 +218,41 @@
             (i18n/label :t/invite-button)]}]]))))
 
 (defn button []
-  (if-not config/referrals-invite-enabled?
-    [rn/view {:style {:align-items :center}}
+  (let [pack   @(re-frame/subscribe [::events/default-reward])
+        tokens (transform-tokens pack)]
+    [rn/view {:style {:align-items        :center
+                      :padding-horizontal 8
+                      :padding-vertical   8}}
      [rn/view {:style (:tiny spacing/padding-vertical)}
-      [quo/button {:on-press            #(re-frame/dispatch [::events/share-link nil])
+      [quo/button {:on-press            #(re-frame/dispatch [::events/open-invite])
                    :accessibility-label :invite-friends-button}
-       (i18n/label :t/invite-friends)]]]
-    (let [reward @(re-frame/subscribe [::events/default-reward])]
-      [rn/view {:style {:align-items :center}}
-       [rn/view {:style (:tiny spacing/padding-vertical)}
-        [quo/button {:on-press            #(re-frame/dispatch [::events/open-invite])
-                     :accessibility-label :invite-friends-button}
-         (i18n/label :t/invite-friends)]]
-       [rn/view {:style (merge (:tiny spacing/padding-vertical)
-                               (:base spacing/padding-horizontal))}
-        (when reward
-          [rn/view {:style {:flex-direction  :row
-                            :align-items     :center
-                            :justify-content :center}}
-           [rn/view {:style (:tiny spacing/padding-horizontal)}
-            (when-let [{:keys [source]} (tokens/symbol->icon :SNT)]
-              [rn/image {:style  {:width  20
-                                  :height 20}
-                         :source (source)}])]
-           [quo/text {:align :center}
-            (i18n/label :t/invite-reward {:value  (str (get reward :eth-amount) " ETH")})]])]])))
+       (i18n/label :t/invite-friends)]]
+     [rn/view {:style (merge (:tiny spacing/padding-vertical)
+                             (:base spacing/padding-horizontal))}
+      (when (seq tokens)
+        [rn/view {:style {:flex-direction  :row
+                          :justify-content :center}}
+         [rn/view {:style (styles/home-tokens-icons (count tokens))}
+          (for [[{name             :name
+                  {source :source} :icon} _ i] tokens]
+            ^{:key name}
+            [rn/view {:style (styles/home-token-icon-style i)}
+             [rn/image {:source (if (fn? source) (source) source)
+                        :style  {:width  20
+                                 :height 20}}]])]
+         [quo/text {:align :center}
+          (i18n/label :t/invite-reward)]])]]))
 
 (defn list-item [{:keys [accessibility-label]}]
-  (if-not config/referrals-invite-enabled?
-    [quo/list-item
-     {:theme               :accent
-      :title               (i18n/label :t/invite-friends)
-      :icon                :main-icons/share
-      :accessibility-label accessibility-label
-      :on-press            (fn []
-                             (re-frame/dispatch [:bottom-sheet/hide])
-                             (js/setTimeout
-                              #(re-frame/dispatch [::events/share-link nil]) 250))}]
-    (let [amount @(re-frame/subscribe [::events/default-reward])]
-      [quo/list-item
-       {:theme               :accent
-        :title               (i18n/label :t/invite-friends)
-        :subtitle            (i18n/label :t/invite-reward {:value (str (get amount :eth-amount) " ETH")})
-        :icon                :main-icons/share
-        :accessibility-label accessibility-label
-        :on-press            #(do
-                                (re-frame/dispatch [:bottom-sheet/hide])
-                                (re-frame/dispatch [::events/open-invite]))}])))
+  [quo/list-item
+   {:theme               :accent
+    :title               (i18n/label :t/invite-friends)
+    :subtitle            (i18n/label :t/invite-reward)
+    :icon                :main-icons/share
+    :accessibility-label accessibility-label
+    :on-press            #(do
+                            (re-frame/dispatch [:bottom-sheet/hide])
+                            (re-frame/dispatch [::events/open-invite]))}])
 
 
 

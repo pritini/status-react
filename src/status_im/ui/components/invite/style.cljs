@@ -32,3 +32,47 @@
   {:margin-right 16
    :width        40
    :height       (- (* 40 c) (* 20 (dec c)))})
+
+(defn home-token-icon-style [idx]
+  {:align-items    :center
+   :shadow-radius  16
+   :shadow-opacity 1
+   :shadow-color   (:shadow-01 @colors/theme)
+   :shadow-offset  {:width 0 :height 4}
+   :width          40
+   :height         40
+   :border-radius  20
+   :position       :absolute
+   :top            0
+   :left           (* idx -10)})
+
+(defn home-tokens-icons [c]
+  {:height            20
+   :margin-horizontal 6
+   :width             (- (* 20 c) (* 10 (dec c)))})
+
+(defn invite-instructions []
+  {:border-top-width    1
+   :border-top-color    (:ui-01 @colors/theme)
+   :border-bottom-width 1
+   :border-bottom-color (:ui-01 @colors/theme)
+   :padding-top         (:small spacing/spacing)})
+
+(defn invite-instructions-title []
+  (merge
+   (:tiny spacing/padding-vertical)
+   (:base spacing/padding-horizontal)))
+
+(defn invite-instructions-content []
+  (merge (:tiny spacing/padding-vertical)
+         (:base spacing/padding-horizontal)))
+
+(defn invite-warning []
+  (merge
+   (:tiny spacing/padding-vertical)
+   (:base spacing/padding-horizontal)
+   {:background-color    (:warning-02 @colors/theme)
+    :border-top-width    1
+    :border-top-color    (:warning-01 @colors/theme)
+    :border-bottom-width 1
+    :border-bottom-color (:warning-01 @colors/theme)}))
