@@ -1,6 +1,7 @@
 (ns status-im.ui.screens.browser.views
   (:require [re-frame.core :as re-frame]
             [reagent.core :as reagent]
+            [clojure.string :as string]
             [status-im.browser.core :as browser]
             [status-im.browser.webview-ref :as webview-ref]
             [status-im.i18n :as i18n]
@@ -21,7 +22,9 @@
             [status-im.utils.debounce :as debounce]
             [status-im.utils.http :as http]
             [status-im.utils.js-resources :as js-res]
-            [status-im.utils.contenthash :as contenthash])
+            [status-im.utils.contenthash :as contenthash]
+            [status-im.utils.utils :as utils]
+            [status-im.ui.components.permissions :as components.permissions])
   (:require-macros [status-im.utils.views :as views]))
 
 (defn toolbar-content [url url-original {:keys [secure?]} url-editing? unsafe?]
@@ -102,6 +105,26 @@
        :accessibility-label :modal-chat-button}
       [icons/icon :main-icons/message]]]))
 
+(defn show-access-request [resources on-allow on-deny]
+  (utils/show-confirmation {:title               (i18n/label :t/permission-request)
+                            :content             (str (i18n/label :t/page-request-access-resources) "\n" (string/join "\n" resources))
+                            :confirm-button-text (i18n/label :t/allow)
+                            :cancel-button-text  (i18n/label :t/deny)
+                            :on-accept           on-allow
+                            :on-cancel           on-deny}))
+
+(def resources-to-permissions-map {"android.webkit.resource.VIDEO_CAPTURE" :camera
+                                   "android.webkit.resource.AUDIO_CAPTURE" :record-audio})
+
+(defn request-resources-access-for-page [resources]
+  (show-access-request resources
+                       (fn []
+                         (components.permissions/request-permissions
+                          {:permissions (map #(get resources-to-permissions-map %) resources)
+                           :on-allowed  #(.answerPermissionRequest ^js @webview-ref/webview-ref true resources)
+                           :on-denied  #(.answerPermissionRequest ^js @webview-ref/webview-ref false)}))
+                       #(.answerPermissionRequest ^js @webview-ref/webview-ref false)))
+
 ;; should-component-update is called only when component's props are changed,
 ;; that's why it can't be used in `browser`, because `url` comes from subs
 (views/defview browser-component
@@ -131,6 +154,7 @@
                                                        (debounce/debounce-and-dispatch
                                                         [:browser/navigation-state-changed % error?]
                                                         500))
+        :on-permission-request                      #(request-resources-access-for-page (-> ^js % .-nativeEvent .-resources))
         ;; Extract event data here due to
         ;; https://reactjs.org/docs/events.html#event-pooling
         :on-message                                 #(re-frame/dispatch [:browser/bridge-message-received (.. ^js % -nativeEvent -data)])

@@ -1210,5 +1210,7 @@
     "audio": "Audio",
     "update-to-see-image": "Update to latest version to see a nice image here!",
     "update-to-listen-audio": "Update to latest version to listen to an audio message here!",
-    "update-to-see-sticker": "Update to latest version to see a nice sticker here!"
+    "update-to-see-sticker": "Update to latest version to see a nice sticker here!",
+    "permission-request" : "Permission request",
+    "page-request-access-resources" : "Page requests access to resources:"
 }
