@@ -138,7 +138,7 @@
   (debounce/debounce-and-dispatch [:chat.ui/message-visibility-changed e] 5000))
 
 (defview messages-view
-  [{:keys [group-chat chat-id public?] :as chat} bottom-space pan-handler set-active-panel]
+  [{:keys [group-chat chat-id public?] :as chat} bottom-space pan-handler]
   (letsubs [messages           [:chats/current-chat-messages-stream]
             no-messages?       [:chats/current-chat-no-messages?]
             current-public-key [:multiaccount/public-key]]
@@ -166,8 +166,7 @@
                                                    :incoming-group (and group-chat (not outgoing))
                                                    :group-chat group-chat
                                                    :public? public?
-                                                   :current-public-key current-public-key)
-                                            set-active-panel])))
+                                                   :current-public-key current-public-key)])))
        :on-viewable-items-changed    on-viewable-items-changed
        :on-end-reached               #(re-frame/dispatch [:chat.ui/load-more-messages])
        :on-scroll-to-index-failed    #() ;;don't remove this
@@ -198,13 +197,10 @@
         on-update        (partial reset! bottom-space)
         pan-responder    (accessory/create-pan-responder position-y pan-state)
         set-active-panel (fn [panel]
-                           (rn/configure-next
-                            (:ease-opacity-200 rn/custom-animations))
-                           (when (and (not panel)
-                                      (= :keep-space @active-panel))
-                             (some-> ^js (quo.react/current-ref text-input-ref) .focus))
                            (reset! active-panel panel)
                            (when panel
+                             (rn/configure-next
+                              (:ease-opacity-200 rn/custom-animations))
                              (js/setTimeout #(react/dismiss-keyboard!) 100)))]
     (fn []
       (let [{:keys [chat-id show-input? group-chat] :as current-chat}
@@ -215,7 +211,7 @@
           [react/view {:style {:flex 1}}
            (when-not group-chat
              [add-contact-bar chat-id])
-           [messages-view current-chat bottom-space pan-responder set-active-panel]]]
+           [messages-view current-chat bottom-space pan-responder]]]
          (when show-input?
            [accessory/view {:y               position-y
                             :pan-state       pan-state

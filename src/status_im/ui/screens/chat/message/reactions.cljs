@@ -50,11 +50,11 @@
                                  (send-emoji {:emoji-id emoji-id}))))
             on-close       (fn []
                              (animated/set-value animated-state 0)
+                             (picker-on-close)
                              (js/setTimeout
                               (fn []
                                 (reset! actions nil)
-                                (reset! visible false)
-                                (picker-on-close))
+                                (reset! visible false))
                               reaction-picker/animation-duration))
             on-open        (fn [pos]
                              (picker-on-open)
