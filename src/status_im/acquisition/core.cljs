@@ -76,7 +76,8 @@
                  referrer
                  (fn [resp] [::referrer-registered referrer resp])
                  (fn [{:keys [code]}] (= code not-found-code))
-                 (fn [resp] [::outdated-referrer resp]))
+                 (fn [resp]
+                   (re-frame/dispatch [::outdated-referrer resp])))
 
                 (= flow-state (:accepted persistence/referrer-state))
                 (fn [_]
