@@ -341,12 +341,17 @@
   [message-content-wrapper message
    [unknown-content-type message]])
 
-(defn chat-message [message]
+(defn chat-message [message set-active-panel]
   [reactions/with-reaction-picker
    {:message         message
     :reactions       @(re-frame/subscribe [:chats/message-reactions (:message-id message)])
-    :picker-on-open  identity
-    :picker-on-close identity
+    :picker-on-open  (fn []
+                       ;; NOTE(Ferossgp): Because of soft-input adjustResize there are some problems on android
+                       (when (and platform/ios? (pos? @(re-frame/subscribe [:keyboard-height])))
+                         (set-active-panel :keep-space)))
+    :picker-on-close (fn []
+                       (when platform/ios?
+                         (set-active-panel nil)))
     :send-emoji      (fn [{:keys [emoji-id]}]
                        (re-frame/dispatch [::models.reactions/send-emoji-reaction
                                            {:message-id (:message-id message)

@@ -71,7 +71,7 @@
       :accessibility-label :send-message-button
       :color               (styles/send-icon-color)}]]])
 
-(defn text-input [{:keys [cooldown-enabled? text-value on-text-change active-panel set-active-panel text-input-ref]}]
+(defn text-input [{:keys [cooldown-enabled? text-value on-text-change set-active-panel text-input-ref]}]
   [rn/view {:style (styles/text-input-wrapper)}
    [rn/text-input {:style                  (styles/text-input)
                    :ref                    text-input-ref
@@ -83,7 +83,7 @@
                    :editable               (not cooldown-enabled?)
                    :blur-on-submit         false
                    :auto-focus             false
-                   :on-focus               #(when active-panel (set-active-panel nil))
+                   :on-focus               #(set-active-panel nil)
                    :on-change              #(on-text-change (.-text ^js (.-nativeEvent ^js %)))
                    :placeholder-text-color (:text-02 @colors/theme)
                    :placeholder            (if cooldown-enabled?
