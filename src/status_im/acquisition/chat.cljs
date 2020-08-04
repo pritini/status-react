@@ -23,7 +23,7 @@
 
 (fx/defn accept-pack
   {:events [::accept-pack]}
-  [{:keys [db] :as cofx} decision]
+  [{:keys [db] :as cofx}]
   (let [referral (get-in db [:acquisition :referrer])
         payload  {:chat_key    (get-in db [:multiaccount :public-key])
                   :address     (ethereum/default-address db)

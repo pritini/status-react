@@ -9,6 +9,7 @@
             [status-im.navigation :as navigation]
             [status-im.utils.universal-links.core :as universal-links]
             [status-im.acquisition.core :as acquisition]
+            [status-im.acquisition.persistance :as persistence]
             [status-im.utils.money :as money]))
 
 (def privacy-policy-link "https://get.status.im")
@@ -48,7 +49,8 @@
           :as   chat-referrer} (get-in db [:acquisition :chat-referrer chat-id])]
      (and chat-referrer
           (not attributed)
-          (nil? flow-state)))))
+          (or (= flow-state (get persistence/referrer-state :accepted))
+              (nil? flow-state))))))
 
 (fx/defn go-to-invite
   {:events [::open-invite]}
@@ -169,7 +171,7 @@
     {::json-rpc/eth-call [{:contract   contract
                            :method     "getDefaultPack()"
                            :outputs    ["address" "uint256" "address[]" "uint256[]" "uint256[]"]
-                           :on-success #(re-frame/dispatch [::starter-pack-amount (vec %) (prn %)])}]}))
+                           :on-success #(re-frame/dispatch [::starter-pack-amount (vec %)])}]}))
 
 (re-frame/reg-sub-raw
  ::starter-pack

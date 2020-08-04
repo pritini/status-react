@@ -11,9 +11,9 @@
                          :registrations (str acquisition-gateway "/registrations")})
 
 (def network-statuses {:initiated 1
-                     :in-flight 2
-                     :error     3
-                     :success   4})
+                       :in-flight 2
+                       :error     3
+                       :success   4})
 
 (defn get-url [type referral]
   (if (= type :clicks)
@@ -23,8 +23,8 @@
 (fx/defn handle-error
   {:events [::on-error]}
   [{:keys [db]} error]
-  {:db (assoc-in db [:acquisition :network-status]
-                 (get network-statuses :error))
+  {:db               (assoc-in db [:acquisition :network-status]
+                               (get network-statuses :error))
    :utils/show-popup {:title   "Request failed"
                       :content (str error)}})
 
@@ -46,19 +46,21 @@
 (fx/defn call-acquisition-gateway
   {:events [::call-acquisition-gateway]}
   [{:keys [db]}
-   {:keys [chat-key message on-success type url method] :as kek}
+   {:keys [chat-key message on-success type url method]}
    sig]
   (let [payload {:chat_key chat-key
                  :msg      message
                  :sig      sig
                  :version  2}]
     {:db        (assoc-in db [:acquisition :network-status]
-                          (get network-statuses :on-flight))
+                          (get network-statuses :in-flight))
      :http-post {:url        url
                  :opts       {:headers {"Content-Type" "application/json"}
                               :method  method}
                  :data       (types/clj->json payload)
                  :on-success (fn [response]
+                               (re-frame/dispatch [:set-in [:acquisition :network-status]]
+                                                  (get network-statuses :success))
                                (re-frame/dispatch [on-success (types/json->clj (get response :response-body))]))
                  :on-error   (fn [error]
                                (re-frame/dispatch [::on-error (:error (types/json->clj (get error :response-body)))]))}}))
@@ -73,3 +75,7 @@
                               (if (handled-error error)
                                 (handle-error error)
                                 (re-frame/dispatch [::on-error (:error error)]))))}})
+(re-frame/reg-sub
+ ::network-status
+ (fn [db]
+   (get-in db [:acquisition :network-status])))

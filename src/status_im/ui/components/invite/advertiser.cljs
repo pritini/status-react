@@ -6,6 +6,7 @@
             [status-im.ui.components.invite.events :as invite]
             [quo.design-system.colors :as colors]
             [status-im.ui.components.invite.utils :as utils]
+            [status-im.acquisition.gateway :as gateway]
             [status-im.acquisition.advertiser :as advertiser]))
 
 (defn perk [{name             :name
@@ -38,8 +39,11 @@
 
 (defn accept-popover []
   (fn []
-    (let [pack   @(re-frame/subscribe [::invite/starter-pack])
-          tokens (utils/transform-tokens pack)]
+    (let [pack    @(re-frame/subscribe [::invite/starter-pack])
+          loading (#{(get gateway/network-statuses :initiated)
+                     (get gateway/network-statuses :in-flight)}
+                   @(re-frame/subscribe [::gateway/network-status]))
+          tokens  (utils/transform-tokens pack)]
       [rn/view {:style {:align-items        :center
                         :padding-vertical   16
                         :padding-horizontal 16}}
@@ -71,11 +75,13 @@
           ^{:key (:name k)}
           [perk k v])]
        [rn/view {:style {:margin-vertical 8}}
-        [quo/button {:on-press #(re-frame/dispatch [::advertiser/decision :accept])}
+        [quo/button {:on-press #(re-frame/dispatch [::advertiser/decision :accept])
+                     :loading  loading}
          (i18n/label :t/advertiser-starter-pack-accept)]]
-       [quo/button {:type     :secondary
-                    :on-press #(re-frame/dispatch [::advertiser/decision :decline])}
-        (i18n/label :t/advertiser-starter-pack-decline)]
+       [rn/view {:style {:opacity (if loading 0 1)}}
+        [quo/button {:type     :secondary
+                     :on-press #(re-frame/dispatch [::advertiser/decision :decline])}
+         (i18n/label :t/advertiser-starter-pack-decline)]]
        [rn/view {:padding-vertical 8}
         [quo/text {:color :secondary
                    :align :center
