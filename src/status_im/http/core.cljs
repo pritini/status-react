@@ -4,10 +4,10 @@
 
 (re-frame/reg-fx
  :http-get
- (fn[{:keys [url response-validator on-success on-error timeout-ms]}]
+ (fn [{:keys [url response-validator on-success on-error timeout-ms]}]
    (let [opts {:valid-response? response-validator
                :timeout-ms      timeout-ms}]
-    (http/get url on-success on-error opts))))
+     (http/get url on-success on-error opts))))
 
 (re-frame/reg-fx
  :http-get-n

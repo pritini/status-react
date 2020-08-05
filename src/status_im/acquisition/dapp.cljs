@@ -21,7 +21,7 @@
     (fx/merge cofx
               (when (security/safe-link? link)
                 (browser/open-url link))
-             (claim/success-starter-pack-claim response))))
+              (claim/success-starter-pack-claim response))))
 
 (fx/defn dapp-decision
   {:events [::decision]}
