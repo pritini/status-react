@@ -11,6 +11,7 @@
             [quo.components.safe-area :refer [use-safe-area]]))
 
 (def tabbar-height tabs.styles/minimized-tabs-height)
+(def duration 250)
 
 (defn create-pan-responder [y pan-active]
   (when-not platform/android?
@@ -24,13 +25,13 @@
                         :onPanResponderRelease   (fn []
                                                    (animated/set-value pan-active 0)
                                                    (js/setTimeout
-                                                     #(animated/set-value y 0)
-                                                     100))
+                                                    #(animated/set-value y 0)
+                                                    100))
                         :onPanResponderTerminate (fn []
                                                    (animated/set-value pan-active 0)
                                                    (js/setTimeout
-                                                     #(animated/set-value y 0)
-                                                     100))})))))
+                                                    #(animated/set-value y 0)
+                                                    100))})))))
 
 (def view
   (reagent/adapt-react-class
@@ -44,7 +45,6 @@
              children        :children}           (bean/bean props)
             {keyboard-height       :height
              keyboard-max-height   :max-height
-             duration              :duration
              keyboard-end-position :end-position} (use-keyboard-dimension)
             {:keys [bottom]}                      (use-safe-area)
             {on-layout  :on-layout
@@ -69,15 +69,13 @@
                                    :easing   (:keyboard animated/easings)})
                                 0
                                 panel-on-screen))
-                             [duration panel-on-screen])
+                             [panel-on-screen])
             delta-y         (animated/clamp (animated/add drag-diff animated-y) max-delta 0)
-            on-update       (react/callback
-                             (fn []
-                               (when on-update-inset
-                                 (on-update-inset (+ bar-height panel-height))))
-                             [panel-height bar-height])
+            on-update       (fn []
+                              (when on-update-inset
+                                (on-update-inset (+ bar-height panel-height))))
             children        (react/get-children children)]
-        (react/effect! on-update)
+        (react/effect! on-update [panel-height bar-height])
         (animated/code!
          (fn []
            (when has-panel
@@ -91,7 +89,7 @@
            (animated/delay
             (animated/set anim-visible (if visible 1 0))
             (if visible delay 0)))
-         [visible keyboard-max-height duration])
+         [visible keyboard-max-height delay])
         (rn/use-back-handler
          (fn []
            (when visible
