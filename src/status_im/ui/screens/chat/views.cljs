@@ -28,8 +28,7 @@
             [status-im.ui.components.invite.chat :as invite.chat]
             [status-im.ui.screens.chat.components.accessory :as accessory]
             [status-im.ui.screens.chat.components.input :as components]
-            [status-im.ui.screens.chat.message.datemark :as message-datemark])
-  (:require-macros [status-im.utils.views :refer [defview letsubs]]))
+            [status-im.ui.screens.chat.message.datemark :as message-datemark]))
 
 (defn topbar [current-chat]
   [topbar/topbar
