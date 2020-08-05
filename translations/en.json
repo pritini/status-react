@@ -577,6 +577,10 @@
     "advertiser-starter-pack-description": "Here’s some crypto to get you started! Use it to get stickers, an ENS name and try dapps",
     "advertiser-starter-pack-accept": "Accept",
     "advertiser-starter-pack-decline": "Decline",
+    "dapp-starter-pack-title": "Starter Pack",
+    "dapp-starter-pack-description": "Here’s some crypto to get you started! Use it to get stickers, an ENS name and try dapps",
+   
+    "dapp-starter-pack-accept": "Accept and Open",
     "starter-pack-received": "Starter Pack received",
     "starter-pack-received-description": "Here’s some crypto to get you started! Use it to get stickers, an ENS name and try dapps",
     "join-group-chat": "Join group",

@@ -19,8 +19,8 @@
 
 (re-frame/reg-fx
  :http-post
- (fn [{:keys [url body response-validator on-success on-error timeout-ms opts]}]
+ (fn [{:keys [url data response-validator on-success on-error timeout-ms opts]}]
    (let [all-opts (assoc opts
                          :valid-response? response-validator
                          :timeout-ms timeout-ms)]
-     (http/post url body on-success on-error all-opts))))
+     (http/post url data on-success on-error all-opts))))

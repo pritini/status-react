@@ -6,14 +6,12 @@
             [status-im.ui.components.toolbar :as toolbar]
             [status-im.utils.utils :as utils]
             [status-im.i18n :as i18n]
-            [status-im.ethereum.tokens :as tokens]
             [quo.design-system.spacing :as spacing]
             [quo.design-system.colors :as colors]
             [status-im.ui.components.invite.style :as styles]
             [status-im.ui.components.topbar :as topbar]
             [status-im.ui.components.invite.events :as events]
             [status-im.ui.components.invite.utils :refer [transform-tokens]]
-            [status-im.utils.config :as config]
             [quo.react-native :as rn]
             [clojure.string :as cstr]))
 

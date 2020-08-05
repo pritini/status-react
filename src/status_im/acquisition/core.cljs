@@ -2,6 +2,7 @@
   (:require [re-frame.core :as re-frame]
             [status-im.utils.fx :as fx]
             [status-im.acquisition.chat :as chat]
+            [status-im.acquisition.dapp :as dapp]
             [status-im.acquisition.advertiser :as advertiser]
             [status-im.acquisition.persistance :as persistence]
             [status-im.acquisition.gateway :as gateway]
@@ -10,6 +11,7 @@
 (def not-found-code "notfound.click_id")
 (def advertiser-type "advertiser")
 (def chat-type "chat")
+(def dapp-type "dapp")
 
 (fx/defn handle-registration
   [cofx {:keys [message on-success]}]
@@ -55,7 +57,10 @@
                 (advertiser/start-acquisition referrer-meta)
 
                 (= type chat-type)
-                (chat/start-acquisition referrer-meta)))))
+                (chat/start-acquisition referrer-meta)
+
+                (= type dapp-type)
+                (dapp/start-acquisition referrer-meta)))))
 
 (fx/defn outdated-referrer
   {:events [::outdated-referrer]}

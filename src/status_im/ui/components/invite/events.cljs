@@ -7,7 +7,7 @@
             [status-im.ethereum.core :as ethereum]
             [status-im.ui.components.react :as react]
             [status-im.navigation :as navigation]
-            [status-im.utils.universal-links.core :as universal-links]
+            [status-im.utils.universal-links.utils :as universal-links]
             [status-im.acquisition.core :as acquisition]
             [status-im.acquisition.persistance :as persistence]
             [status-im.utils.money :as money]))
@@ -38,7 +38,7 @@
   (acquisition/handle-registration cofx
                                    {:message    {:address             address
                                                  :interaction_address (get-in db [:multiaccount :public-key])}
-                                    :on-success ::share-link}))
+                                    :on-success [::share-link]}))
 
 (re-frame/reg-sub
  ::pending-chat-invite

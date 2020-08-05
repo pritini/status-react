@@ -1,11 +1,9 @@
 (ns status-im.utils.universal-links.core
   (:require [cljs.spec.alpha :as spec]
             [clojure.string :as string]
-            [goog.string :as gstring]
             [re-frame.core :as re-frame]
             [status-im.multiaccounts.model :as multiaccounts.model]
             [status-im.chat.models :as chat]
-            [status-im.constants :as constants]
             [status-im.ethereum.ens :as ens]
             [status-im.ethereum.core :as ethereum]
             [status-im.utils.security :as security]
@@ -26,20 +24,6 @@
 (def browse-regex #"(?:https?://join\.)?status[.-]im(?::/)?/(?:b/(.*)$|browse/(.*))$")
 (def referral-link-regex #"(?:https?://join\.)?status[.-]im(?::/)?/(?:referral/(.*))$")
 
-;; domains should be without the trailing slash
-(def domains {:external "https://join.status.im"
-              :internal "status-im:/"})
-
-(def links {:public-chat "%s/%s"
-            :private-chat "%s/p/%s"
-            :user        "%s/u/%s"
-            :browse      "%s/b/%s"})
-
-(defn generate-link [link-type domain-type param]
-  (gstring/format (get links link-type)
-                  (get domains domain-type)
-                  param))
-
 (defn match-url [url regex]
   (some->> url
            (re-matches regex)
@@ -50,14 +34,6 @@
 
 (defn is-request-url? [url]
   (string/starts-with? url "ethereum:"))
-
-(defn universal-link? [url]
-  (boolean
-   (re-matches constants/regx-universal-link url)))
-
-(defn deep-link? [url]
-  (boolean
-   (re-matches constants/regx-deep-link url)))
 
 (fx/defn handle-browse [cofx url]
   (log/info "universal-links: handling browse" url)
@@ -154,6 +130,7 @@
 (fx/defn handle-url
   "Store url in the database if the user is not logged in, to be processed
   on login, otherwise just handle it"
+  {:events [:universal-links/handle-url]}
   [cofx url]
   (if (multiaccounts.model/logged-in? cofx)
     (route-url cofx url)

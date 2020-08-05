@@ -112,7 +112,7 @@
                                             [quo/text {:color    :link
                                                        :on-press #(re-frame/dispatch [::invite/terms-and-conditions])}
                                              (i18n/label :t/invite-privacy-policy2)]]}]}]]
-    (when true ;; pending-invite
+    (when pending-invite
       [rn/view {:style (messages-wrapper)}
        (for [message messages]
          [render-message message])])))

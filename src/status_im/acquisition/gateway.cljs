@@ -61,7 +61,7 @@
                  :on-success (fn [response]
                                (re-frame/dispatch [:set-in [:acquisition :network-status]]
                                                   (get network-statuses :success))
-                               (re-frame/dispatch [on-success (types/json->clj (get response :response-body))]))
+                               (re-frame/dispatch (conj on-success (types/json->clj (get response :response-body)))))
                  :on-error   (fn [error]
                                (re-frame/dispatch [::on-error (:error (types/json->clj (get error :response-body)))]))}}))
 
