@@ -35,6 +35,6 @@
                 (gateway/handle-acquisition {:message    payload
                                              :method     "PATCH"
                                              :url        (gateway/get-url :clicks referral)
-                                             :on-success [::claim/success-starter-pack-claim]})
+                                             :on-success [::success-claim]})
                 {::persistence/set-referrer-state :declined})
               (popover/hide-popover))))
