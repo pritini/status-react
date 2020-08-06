@@ -5,7 +5,6 @@
             [status-im.i18n :as i18n]
             [status-im.ui.components.camera :as camera]
             [status-im.ui.components.react :as react]
-            [status-im.ui.components.topbar :as topbar]
             [status-im.ui.screens.qr-scanner.styles :as styles]
             [status-im.ui.components.colors :as colors]
             [status-im.utils.config :as config]
@@ -14,15 +13,27 @@
             [quo.components.safe-area :as safe-area]))
 
 (defn- topbar [_ {:keys [title] :as opts}]
-  [topbar/topbar {:title (or title (i18n/label :t/scan-qr))
-                  :navigation
-                  {:label    (i18n/label :t/cancel)
-                   :on-press #(re-frame/dispatch [:qr-scanner.callback/scan-qr-code-cancel opts])}}
-   #_[topbar/actions [{:icon      (if (= :on camera-flashlight)
-                                    :main-icons/flash-active
-                                    :main-icons/flash-inactive)
-                       :icon-opts {:color colors/white}
-                       :handler   #(re-frame/dispatch [:wallet/toggle-flashlight])}]]])
+  [react/view {:style {:height             56
+                       :padding-horizontal 8
+                       :flex-direction     :row
+                       :align-items        :center}}
+   [quo/button {:type     :secondary
+                :on-press #(re-frame/dispatch [:qr-scanner.callback/scan-qr-code-cancel opts])}
+    (i18n/label :t/cancel)]
+   [react/view {:style {:position         :absolute
+                        :top              0
+                        :left             16
+                        :right            16
+                        :bottom           0}}
+    [react/view {:style {:flex            1
+                         :justify-content :center
+                         :align-items     :center}}
+     [quo/text {:style           {:color colors/white-persist}
+                :weight          :bold
+                :number-of-lines 1
+                :align           :center
+                :size            :large}
+      (or title (i18n/label :t/scan-qr))]]]])
 
 (defn qr-test-view [opts]
   (let [text-value (atom "")]
