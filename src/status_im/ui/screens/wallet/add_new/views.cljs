@@ -41,10 +41,11 @@
                 :key :t/add-private-key-account
                 "")]
     [topbar/topbar
-     (merge {:title title}
+     (merge {:title (i18n/label title)}
             (when (= type :watch)
-              {:accessories [{:icon    :qr
-                              :handler #(request-camera-permissions)}]}))]))
+              {:right-accessories
+               [{:icon     :qr
+                 :on-press #(request-camera-permissions)}]}))]))
 
 (defn common-settings [account]
   [react/view {:margin-horizontal 16}
@@ -134,9 +135,9 @@
     [react/keyboard-avoiding-view {:style {:flex 1}}
      [topbar/topbar
       {:navigation :none
-       :accessories
+       :right-accessories
        [{:label   :t/cancel
-         :handler #(re-frame/dispatch [:keycard/new-account-pin-sheet-hide])}]}]
+         :on-press #(re-frame/dispatch [:keycard/new-account-pin-sheet-hide])}]}]
      [pin.views/pin-view
       {:pin               pin
        :status            status

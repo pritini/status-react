@@ -21,7 +21,8 @@
 (views/defview appearance []
   (views/letsubs [{:keys [appearance]} [:multiaccount]]
     [react/view {:flex 1}
-     [topbar/topbar {:title :t/appearance :show-border? true}]
+     [topbar/topbar {:title         (i18n/label :t/appearance)
+                     :border-bottom true}]
      [quo/list-header (i18n/label :t/preference)]
      [react/view {:flex-direction  :row :flex 1 :padding-horizontal 8
                   :justify-content :space-between :margin-top 16}

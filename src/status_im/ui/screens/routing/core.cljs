@@ -74,7 +74,7 @@
      {:padding-bottom (+ (oget insets-obj "bottom")
                          (get style :padding-bottom)
                          (get style :padding-vertical))})
-   (when (get insets :top true)
+   (when (get insets :top false)
      {:padding-top (+ (oget insets-obj "top")
                       (get style :padding-top)
                       (get style :padding-vertical))})))

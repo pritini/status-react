@@ -170,7 +170,8 @@
 (defn home []
   [react/keyboard-avoiding-view {:style styles/home-container}
    [connectivity/connectivity
-    [topbar/topbar {:title        :t/chat :navigation :none
-                    :show-border? true}]
+    [topbar/topbar {:title         (i18n/label :t/chat)
+                    :navigation    :none
+                    :border-bottom true}]
     [chats-list]]
    [plus-button]])

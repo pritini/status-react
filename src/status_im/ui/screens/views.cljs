@@ -82,6 +82,7 @@
   (let [route-name (get-active-route-name (js->clj state))]
     (tabbar/minimize-bar route-name)
 
+    (prn "HEY!")
     ;; NOTE(Ferossgp): Keycard did-load events backward compatibility
     (re-frame/dispatch [:screens/on-will-focus route-name])
 

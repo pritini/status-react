@@ -9,7 +9,6 @@
             [status-im.ui.components.topbar :as topbar]
             [status-im.ui.screens.add-new.new-public-chat.db :as db]
             [status-im.chat.models :as chat.models]
-            [status-im.ui.components.styles :as components.styles]
             [status-im.ui.components.icons.vector-icons :as icons])
   (:require-macros [status-im.utils.views :as views]))
 
@@ -80,8 +79,10 @@
 (views/defview new-public-chat []
   (views/letsubs [topic [:public-group-topic]
                   error [:public-chat.new/topic-error-message]]
-    [react/view components.styles/flex
-     [topbar/topbar {:title :t/new-public-group-chat :modal? true}]
+    [react/view {:style {:flex 1}}
+     [topbar/topbar {:use-insets false
+                     :title      (i18n/label :t/new-public-group-chat)
+                     :modal?     true}]
      [react/scroll-view {:style {:flex 1}}
       [react/view {:padding-horizontal 16}
        [react/view {:align-items :center :padding-vertical 8}
