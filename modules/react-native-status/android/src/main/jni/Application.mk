@@ -1,0 +1,2 @@
+APP_ABI := all
+include $(PREBUILT_STATIC_LIBRARY)

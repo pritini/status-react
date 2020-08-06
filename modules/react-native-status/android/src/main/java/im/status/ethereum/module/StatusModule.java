@@ -31,8 +31,8 @@ import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 
-import statusgo.SignalHandler;
-import statusgo.Statusgo;
+import im.status.SignalHandler;
+import im.status.NimStatus;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -87,7 +87,7 @@ class StatusModule extends ReactContextBaseJavaModule implements LifecycleEventL
     public void onHostResume() {  // Activity `onResume`
         module = this;
         this.background = false;
-        Statusgo.setMobileSignalHandler(this);
+        NimStatus.setMobileSignalHandler(this);
     }
 
     @Override
@@ -327,7 +327,7 @@ class StatusModule extends ReactContextBaseJavaModule implements LifecycleEventL
     public void saveAccountAndLogin(final String multiaccountData, final String password, final String settings, final String config, final String accountsData) {
         Log.d(TAG, "saveAccountAndLogin");
         String finalConfig = prepareDirAndUpdateConfig(config);
-        String result = Statusgo.saveAccountAndLogin(multiaccountData, password, settings, finalConfig, accountsData);
+        String result = NimStatus.saveAccountAndLogin(multiaccountData, password, settings, finalConfig, accountsData);
         if (result.startsWith("{\"error\":\"\"")) {
             Log.d(TAG, "saveAccountAndLogin result: " + result);
             Log.d(TAG, "Geth node started");
@@ -340,7 +340,7 @@ class StatusModule extends ReactContextBaseJavaModule implements LifecycleEventL
     public void saveAccountAndLoginWithKeycard(final String multiaccountData, final String password, final String settings, final String config, final String accountsData, final String chatKey) {
         Log.d(TAG, "saveAccountAndLoginWithKeycard");
         String finalConfig = prepareDirAndUpdateConfig(config);
-        String result = Statusgo.saveAccountAndLoginWithKeycard(multiaccountData, password, settings, finalConfig, accountsData, chatKey);
+        String result = NimStatus.saveAccountAndLoginWithKeycard(multiaccountData, password, settings, finalConfig, accountsData, chatKey);
         if (result.startsWith("{\"error\":\"\"")) {
             Log.d(TAG, "saveAccountAndLoginWithKeycard result: " + result);
             Log.d(TAG, "Geth node started");
@@ -352,7 +352,7 @@ class StatusModule extends ReactContextBaseJavaModule implements LifecycleEventL
     @ReactMethod
     public void login(final String accountData, final String password) {
         Log.d(TAG, "login");
-        String result = Statusgo.login(accountData, password);
+        String result = NimStatus.login(accountData, password);
         if (result.startsWith("{\"error\":\"\"")) {
             Log.d(TAG, "Login result: " + result);
         } else {
@@ -364,7 +364,7 @@ class StatusModule extends ReactContextBaseJavaModule implements LifecycleEventL
     public void logout() {
         Log.d(TAG, "logout");
         disableNotifications();
-        String result = Statusgo.logout();
+        String result = NimStatus.logout();
         if (result.startsWith("{\"error\":\"\"")) {
             Log.d(TAG, "Logout result: " + result);
         } else {
@@ -432,7 +432,7 @@ class StatusModule extends ReactContextBaseJavaModule implements LifecycleEventL
         Runnable r = new Runnable() {
             @Override
             public void run() {
-                Statusgo.initKeystore(keydir);
+                NimStatus.initKeystore(keydir);
             }
         };
 
@@ -454,7 +454,7 @@ class StatusModule extends ReactContextBaseJavaModule implements LifecycleEventL
         Runnable r = new Runnable() {
             @Override
             public void run() {
-                String result = Statusgo.openAccounts(rootDir);
+                String result = NimStatus.openAccounts(rootDir);
                 callback.invoke(result);
             }
         };
@@ -478,7 +478,7 @@ class StatusModule extends ReactContextBaseJavaModule implements LifecycleEventL
         Runnable r = new Runnable() {
             @Override
             public void run() {
-                String result = Statusgo.verifyAccountPassword(newKeystoreDir, address, password);
+                String result = NimStatus.verifyAccountPassword(newKeystoreDir, address, password);
 
                 callback.invoke(result);
             }
@@ -490,7 +490,7 @@ class StatusModule extends ReactContextBaseJavaModule implements LifecycleEventL
     @ReactMethod
     public void loginWithKeycard(final String accountData, final String password, final String chatKey) {
         Log.d(TAG, "loginWithKeycard");
-        String result = Statusgo.loginWithKeycard(accountData, password, chatKey);
+        String result = NimStatus.loginWithKeycard(accountData, password, chatKey);
         if (result.startsWith("{\"error\":\"\"")) {
             Log.d(TAG, "LoginWithKeycard result: " + result);
         } else {
@@ -638,7 +638,7 @@ class StatusModule extends ReactContextBaseJavaModule implements LifecycleEventL
         Runnable r = new Runnable() {
             @Override
             public void run() {
-                String res = Statusgo.addPeer(enode);
+                String res = NimStatus.addPeer(enode);
 
                 callback.invoke(res);
             }
@@ -657,7 +657,7 @@ class StatusModule extends ReactContextBaseJavaModule implements LifecycleEventL
         Runnable r = new Runnable() {
             @Override
             public void run() {
-                String res = Statusgo.multiAccountStoreAccount(json);
+                String res = NimStatus.multiAccountStoreAccount(json);
 
                 callback.invoke(res);
             }
@@ -676,7 +676,7 @@ class StatusModule extends ReactContextBaseJavaModule implements LifecycleEventL
         Runnable r = new Runnable() {
             @Override
             public void run() {
-                String res = Statusgo.multiAccountLoadAccount(json);
+                String res = NimStatus.multiAccountLoadAccount(json);
 
                 callback.invoke(res);
             }
@@ -695,7 +695,7 @@ class StatusModule extends ReactContextBaseJavaModule implements LifecycleEventL
         Runnable r = new Runnable() {
             @Override
             public void run() {
-                String res = Statusgo.multiAccountReset();
+                String res = NimStatus.multiAccountReset();
 
                 callback.invoke(res);
             }
@@ -714,7 +714,7 @@ class StatusModule extends ReactContextBaseJavaModule implements LifecycleEventL
         Runnable r = new Runnable() {
             @Override
             public void run() {
-                String res = Statusgo.multiAccountDeriveAddresses(json);
+                String res = NimStatus.multiAccountDeriveAddresses(json);
 
                 callback.invoke(res);
             }
@@ -733,7 +733,7 @@ class StatusModule extends ReactContextBaseJavaModule implements LifecycleEventL
         Runnable r = new Runnable() {
             @Override
             public void run() {
-                String res = Statusgo.multiAccountGenerateAndDeriveAddresses(json);
+                String res = NimStatus.multiAccountGenerateAndDeriveAddresses(json);
 
                 callback.invoke(res);
             }
@@ -752,7 +752,7 @@ class StatusModule extends ReactContextBaseJavaModule implements LifecycleEventL
         Runnable r = new Runnable() {
             @Override
             public void run() {
-                String res = Statusgo.multiAccountStoreDerivedAccounts(json);
+                String res = NimStatus.multiAccountStoreDerivedAccounts(json);
 
                 callback.invoke(res);
             }
@@ -771,7 +771,7 @@ class StatusModule extends ReactContextBaseJavaModule implements LifecycleEventL
         Runnable r = new Runnable() {
             @Override
             public void run() {
-                String res = Statusgo.multiAccountImportMnemonic(json);
+                String res = NimStatus.multiAccountImportMnemonic(json);
                 callback.invoke(res);
             }
         };
@@ -788,7 +788,7 @@ class StatusModule extends ReactContextBaseJavaModule implements LifecycleEventL
         Runnable r = new Runnable() {
             @Override
             public void run() {
-                String res = Statusgo.multiAccountImportPrivateKey(json);
+                String res = NimStatus.multiAccountImportPrivateKey(json);
                 callback.invoke(res);
             }
         };
@@ -806,7 +806,7 @@ class StatusModule extends ReactContextBaseJavaModule implements LifecycleEventL
         Runnable r = new Runnable() {
             @Override
             public void run() {
-                String res = Statusgo.hashTransaction(txArgsJSON);
+                String res = NimStatus.hashTransaction(txArgsJSON);
                 callback.invoke(res);
             }
         };
@@ -825,7 +825,7 @@ class StatusModule extends ReactContextBaseJavaModule implements LifecycleEventL
         Runnable r = new Runnable() {
             @Override
             public void run() {
-                String res = Statusgo.hashMessage(message);
+                String res = NimStatus.hashMessage(message);
                 callback.invoke(res);
             }
         };
@@ -844,7 +844,7 @@ class StatusModule extends ReactContextBaseJavaModule implements LifecycleEventL
         Runnable r = new Runnable() {
             @Override
             public void run() {
-                String res = Statusgo.hashTypedData(data);
+                String res = NimStatus.hashTypedData(data);
                 callback.invoke(res);
             }
         };
@@ -864,7 +864,7 @@ class StatusModule extends ReactContextBaseJavaModule implements LifecycleEventL
         Runnable r = new Runnable() {
             @Override
             public void run() {
-                String res = Statusgo.sendTransactionWithSignature(txArgsJSON, signature);
+                String res = NimStatus.sendTransactionWithSignature(txArgsJSON, signature);
                 callback.invoke(res);
             }
         };
@@ -883,7 +883,7 @@ class StatusModule extends ReactContextBaseJavaModule implements LifecycleEventL
         Runnable r = new Runnable() {
             @Override
             public void run() {
-                String res = Statusgo.sendTransaction(txArgsJSON, password);
+                String res = NimStatus.sendTransaction(txArgsJSON, password);
                 callback.invoke(res);
             }
         };
@@ -902,7 +902,7 @@ class StatusModule extends ReactContextBaseJavaModule implements LifecycleEventL
         Runnable r = new Runnable() {
             @Override
             public void run() {
-                String res = Statusgo.signMessage(rpcParams);
+                String res = NimStatus.signMessage(rpcParams);
                 callback.invoke(res);
             }
         };
@@ -921,7 +921,7 @@ class StatusModule extends ReactContextBaseJavaModule implements LifecycleEventL
         Runnable r = new Runnable() {
             @Override
             public void run() {
-                String res = Statusgo.signTypedData(data, account, password);
+                String res = NimStatus.signTypedData(data, account, password);
                 callback.invoke(res);
             }
         };
@@ -1019,7 +1019,7 @@ class StatusModule extends ReactContextBaseJavaModule implements LifecycleEventL
         Runnable r = new Runnable() {
             @Override
             public void run() {
-                String res = Statusgo.callRPC(payload);
+                String res = NimStatus.callRPC(payload);
                 callback.invoke(res);
             }
         };
@@ -1032,7 +1032,7 @@ class StatusModule extends ReactContextBaseJavaModule implements LifecycleEventL
         Runnable r = new Runnable() {
             @Override
             public void run() {
-                String res = Statusgo.callPrivateRPC(payload);
+                String res = NimStatus.callPrivateRPC(payload);
                 callback.invoke(res);
             }
         };
@@ -1048,13 +1048,13 @@ class StatusModule extends ReactContextBaseJavaModule implements LifecycleEventL
     @ReactMethod
     public void connectionChange(final String type, final boolean isExpensive) {
         Log.d(TAG, "ConnectionChange: " + type + ", is expensive " + isExpensive);
-        Statusgo.connectionChange(type, isExpensive ? 1 : 0);
+        NimStatus.connectionChange(type, isExpensive ? 1 : 0);
     }
 
     @ReactMethod
     public void appStateChange(final String type) {
         Log.d(TAG, "AppStateChange: " + type);
-        Statusgo.appStateChange(type);
+        NimStatus.appStateChange(type);
     }
 
     @ReactMethod
@@ -1098,7 +1098,7 @@ class StatusModule extends ReactContextBaseJavaModule implements LifecycleEventL
         Runnable r = new Runnable() {
             @Override
             public void run() {
-                String result = Statusgo.extractGroupMembershipSignatures(signaturePairs);
+                String result = NimStatus.extractGroupMembershipSignatures(signaturePairs);
 
                 callback.invoke(result);
             }
@@ -1118,7 +1118,7 @@ class StatusModule extends ReactContextBaseJavaModule implements LifecycleEventL
         Runnable r = new Runnable() {
             @Override
             public void run() {
-                String result = Statusgo.signGroupMembership(content);
+                String result = NimStatus.signGroupMembership(content);
 
                 callback.invoke(result);
             }
@@ -1139,7 +1139,7 @@ class StatusModule extends ReactContextBaseJavaModule implements LifecycleEventL
         Runnable r = new Runnable() {
             @Override
             public void run() {
-                String res = Statusgo.chaosModeUpdate(on);
+                String res = NimStatus.chaosModeUpdate(on);
 
                 callback.invoke(res);
             }
@@ -1150,7 +1150,7 @@ class StatusModule extends ReactContextBaseJavaModule implements LifecycleEventL
 
     @ReactMethod(isBlockingSynchronousMethod = true)
     public String generateAlias(final String seed) {
-        return Statusgo.generateAlias(seed);
+        return NimStatus.generateAlias(seed);
     }
 
     @ReactMethod
@@ -1164,7 +1164,7 @@ class StatusModule extends ReactContextBaseJavaModule implements LifecycleEventL
         Runnable r = new Runnable() {
             @Override
             public void run() {
-                String res = Statusgo.generateAlias(seed);
+                String res = NimStatus.generateAlias(seed);
 
                 Log.d(TAG, res);
                 callback.invoke(res);
@@ -1176,7 +1176,7 @@ class StatusModule extends ReactContextBaseJavaModule implements LifecycleEventL
 
     @ReactMethod(isBlockingSynchronousMethod = true)
     public String identicon(final String seed) {
-        return Statusgo.identicon(seed);
+        return NimStatus.identicon(seed);
     }
 
     @ReactMethod
@@ -1190,7 +1190,7 @@ class StatusModule extends ReactContextBaseJavaModule implements LifecycleEventL
         Runnable r = new Runnable() {
             @Override
             public void run() {
-                String res = Statusgo.identicon(seed);
+                String res = NimStatus.identicon(seed);
 
                 Log.d(TAG, res);
                 callback.invoke(res);
@@ -1211,8 +1211,8 @@ class StatusModule extends ReactContextBaseJavaModule implements LifecycleEventL
         Runnable r = new Runnable() {
             @Override
             public void run() {
-                String resIdenticon = Statusgo.identicon(seed);
-                String resAlias = Statusgo.generateAlias(seed);
+                String resIdenticon = NimStatus.identicon(seed);
+                String resAlias = NimStatus.generateAlias(seed);
 
                 Log.d(TAG, resIdenticon);
                 Log.d(TAG, resAlias);
@@ -1235,7 +1235,7 @@ class StatusModule extends ReactContextBaseJavaModule implements LifecycleEventL
         Runnable r = new Runnable() {
             @Override
             public void run() {
-                String res = Statusgo.getNodesFromContract(rpcEndpoint, contractAddress);
+                String res = NimStatus.getNodesFromContract(rpcEndpoint, contractAddress);
 
                 Log.d(TAG, res);
                 callback.invoke(res);
@@ -1274,7 +1274,7 @@ class StatusModule extends ReactContextBaseJavaModule implements LifecycleEventL
         Runnable r = new Runnable() {
             @Override
             public void run() {
-                String resValidateMnemonic = Statusgo.validateMnemonic(seed);
+                String resValidateMnemonic = NimStatus.validateMnemonic(seed);
 
                 Log.d(TAG, resValidateMnemonic);
                 callback.invoke(resValidateMnemonic);
